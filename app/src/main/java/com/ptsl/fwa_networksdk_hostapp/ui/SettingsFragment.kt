@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.ui
+package com.ptsl.fwa_networksdk_hostapp.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import com.ptsl.networksdk_event.ui.theme.FWASDKTheme
+import com.ptsl.fwa_networksdk_hostapp.ui.theme.FWASDKTheme
 
 class SettingsFragment : Fragment() {
     override fun onCreateView(
@@ -23,3 +23,4 @@ class SettingsFragment : Fragment() {
         }
     }
 }
+

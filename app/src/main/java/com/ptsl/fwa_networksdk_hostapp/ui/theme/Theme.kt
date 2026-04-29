@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.ui.theme
+package com.ptsl.fwa_networksdk_hostapp.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -28,3 +28,4 @@ fun FWASDKTheme(
         content = content
     )
 }
+

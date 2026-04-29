@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.ui
+package com.ptsl.fwa_networksdk_hostapp.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ptsl.networksdk_event.ui.theme.*
+import com.ptsl.fwa_networksdk_hostapp.ui.theme.*
 
 @Composable
 fun DashboardScreen(
@@ -120,3 +120,4 @@ fun DashboardCard(
         }
     }
 }
+

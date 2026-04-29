@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.ui
+package com.ptsl.fwa_networksdk_hostapp.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import com.ptsl.fwa_network_sdk.FWANetworkDataMeasurement
-import com.ptsl.networksdk_event.ui.theme.*
+import com.ptsl.fwa_networksdk_hostapp.ui.theme.*
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -337,5 +337,6 @@ fun DetailCard(label: String, value: String, modifier: Modifier = Modifier) {
         }
     }
 }
+
 
 

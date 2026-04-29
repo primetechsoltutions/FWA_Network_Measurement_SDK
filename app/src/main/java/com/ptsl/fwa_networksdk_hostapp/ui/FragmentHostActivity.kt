@@ -1,8 +1,8 @@
-package com.ptsl.networksdk_event.ui
+package com.ptsl.fwa_networksdk_hostapp.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.ptsl.networksdk_event.R
+import com.ptsl.fwa_networksdk_hostapp.R
 
 class FragmentHostActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,3 +18,4 @@ class FragmentHostActivity : AppCompatActivity() {
         }
     }
 }
+

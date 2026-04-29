@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.ui
+package com.ptsl.fwa_networksdk_hostapp.ui
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ptsl.networksdk_event.model.RecentTest
-import com.ptsl.networksdk_event.ui.theme.*
+import com.ptsl.fwa_networksdk_hostapp.model.RecentTest
+import com.ptsl.fwa_networksdk_hostapp.ui.theme.*
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -274,3 +274,4 @@ fun RecentTestItem(test: RecentTest) {
         }
     }
 }
+

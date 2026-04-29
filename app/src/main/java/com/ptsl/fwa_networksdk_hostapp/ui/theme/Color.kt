@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.ui.theme
+package com.ptsl.fwa_networksdk_hostapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -10,3 +10,4 @@ val TextDim = Color(0xFF94A3B8)
 val SuccessGreen = Color(0xFF22C55E)
 val ErrorRed = Color(0xFFEF4444)
 val LoadingOverlay = Color(0xCC0F172A)
+

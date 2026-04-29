@@ -1,13 +1,12 @@
-package com.ptsl.networksdk_event
+package com.ptsl.fwa_networksdk_hostapp
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.compose.rememberNavController
 import com.ptsl.fwa_network_sdk.FWANetworkDataMeasurement
-import com.ptsl.networksdk_event.ui.AppNavigation
-import com.ptsl.networksdk_event.ui.theme.FWASDKTheme
+import com.ptsl.fwa_networksdk_hostapp.ui.AppNavigation
+import com.ptsl.fwa_networksdk_hostapp.ui.theme.FWASDKTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,7 +24,7 @@ class MainActivity : AppCompatActivity() {
                 AppNavigation(
                     navController = navController,
                     onNavigateToFragment = {
-                        startActivity(android.content.Intent(this, com.ptsl.networksdk_event.ui.FragmentHostActivity::class.java))
+                        startActivity(android.content.Intent(this, com.ptsl.fwa_networksdk_hostapp.ui.FragmentHostActivity::class.java))
                     },
                     onStartAssessment = { onComplete ->
 
@@ -44,4 +43,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
 

@@ -1,14 +1,18 @@
 package com.ptsl.fwa_network_sdk.data_model
 
+
+import androidx.annotation.Keep
+import com.google.gson.annotations.SerializedName
 import kotlin.math.roundToInt
 
+@Keep
 data class BandwidthTestResult(
-    val downloadSpeedKbps: Double,
-    val uploadSpeedKbps: Double,
+    @SerializedName("downloadSpeedKbps") val downloadSpeedKbps: Double,
+    @SerializedName("uploadSpeedKbps") val uploadSpeedKbps: Double,
 
     // New fields (requested)
-    val totalDownloadBytes: Long,
-    val totalUploadBytes: Long
+    @SerializedName("totalDownloadBytes") val totalDownloadBytes: Long,
+    @SerializedName("totalUploadBytes") val totalUploadBytes: Long
 ) {
     val totalDownloadMB: Double
         get() = round2(totalDownloadBytes / (1024.0 * 1024.0))

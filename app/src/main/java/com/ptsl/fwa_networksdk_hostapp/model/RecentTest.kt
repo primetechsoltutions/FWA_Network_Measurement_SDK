@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.model
+package com.ptsl.fwa_networksdk_hostapp.model
 
 data class RecentTest(
     val timestamp: String,
@@ -7,3 +7,4 @@ data class RecentTest(
     val rsrp: Int,
     val status: String
 )
+

@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event.ui
+package com.ptsl.fwa_networksdk_hostapp.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -68,7 +68,7 @@ fun PlaceholderScreen(title: String, onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = com.ptsl.networksdk_event.ui.theme.BgDarkCard,
+                    containerColor = com.ptsl.fwa_networksdk_hostapp.ui.theme.BgDarkCard,
                     titleContentColor = androidx.compose.ui.graphics.Color.White,
                     navigationIconContentColor = androidx.compose.ui.graphics.Color.White
                 )
@@ -78,12 +78,13 @@ fun PlaceholderScreen(title: String, onBack: () -> Unit) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(com.ptsl.networksdk_event.ui.theme.BgDark)
+                .background(com.ptsl.fwa_networksdk_hostapp.ui.theme.BgDark)
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            Text("Coming Soon: $title", color = com.ptsl.networksdk_event.ui.theme.TextDim)
+            Text("Coming Soon: $title", color = com.ptsl.fwa_networksdk_hostapp.ui.theme.TextDim)
         }
     }
 }
+
 

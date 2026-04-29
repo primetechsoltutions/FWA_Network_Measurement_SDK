@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ptsl.networksdk_event"
+    namespace = "com.ptsl.fwa_networksdk_hostapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ptsl.networksdk_event"
+        applicationId = "com.ptsl.fwa_networksdk_hostapp"
         minSdk = 23
         targetSdk = 35
         versionCode = 1

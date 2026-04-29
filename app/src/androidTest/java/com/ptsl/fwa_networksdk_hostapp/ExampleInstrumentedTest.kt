@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event
+package com.ptsl.fwa_networksdk_hostapp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.ptsl.networksdk_event", appContext.packageName)
+        assertEquals("com.ptsl.fwa_networksdk_hostapp", appContext.packageName)
     }
 }

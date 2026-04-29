@@ -1,4 +1,4 @@
-package com.ptsl.networksdk_event
+package com.ptsl.fwa_networksdk_hostapp
 
 import org.junit.Test
 
