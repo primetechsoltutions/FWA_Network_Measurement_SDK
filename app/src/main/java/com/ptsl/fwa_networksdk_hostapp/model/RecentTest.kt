@@ -5,6 +5,7 @@ data class RecentTest(
     val downloadSpeed: Double,
     val uploadSpeed: Double,
     val rsrp: Int,
-    val status: String
+    val status: String,
+    val testResult: String
 )
 

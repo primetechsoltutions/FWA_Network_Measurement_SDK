@@ -1,6 +1,11 @@
 package com.ptsl.fwa_network_sdk.utils
 
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -14,9 +19,32 @@ object CommonUtils {
             .format(Date())
     }
 
-    /** Check if GPS is enabled */
-    fun isGpsEnabled(context: android.content.Context): Boolean {
-        val locationManager = context.getSystemService(android.content.Context.LOCATION_SERVICE) as? android.location.LocationManager
-        return locationManager?.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)?:false
+    fun isGpsEnabled(context:Context?): Boolean {
+        val ctx = context ?: return false
+        val locationManager = ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+            ?: return false
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+    /** Check if Phone State permission is granted */
+
+    fun isPhoneStatePermissionGranted(context: Context?): Boolean {
+        val ctx = context ?: return false
+        return ContextCompat.checkSelfPermission(
+            ctx,
+            Manifest.permission.READ_PHONE_STATE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+    /** Check if Location permission is granted */
+
+    fun isLocationPermissionGranted(context:Context?): Boolean {
+        val ctx = context ?: return false
+        return ContextCompat.checkSelfPermission(
+            ctx,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    ctx,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
     }
 }

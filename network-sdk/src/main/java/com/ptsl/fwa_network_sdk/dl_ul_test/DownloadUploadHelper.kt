@@ -70,6 +70,8 @@ class DownloadUploadHelper(private val apiService: ApiService) {
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
+                // Clean Code: Log exception to prevent silent failures during speed tests
+                android.util.Log.w("DownloadUploadHelper", "Download test iteration failed: ${e.message}")
             } finally {
                 coroutineContext.ensureActive()
                 stopwatch.reset()
@@ -104,6 +106,8 @@ class DownloadUploadHelper(private val apiService: ApiService) {
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
+                // Clean Code: Log exception to prevent silent failures during speed tests
+                android.util.Log.w("DownloadUploadHelper", "Upload test iteration failed: ${e.message}")
             } finally {
                 coroutineContext.ensureActive()
                 stopwatch.reset()

@@ -32,6 +32,7 @@ fun SpeedTestScreen(
     var showResult by remember { mutableStateOf(false) }
     var resultJson by remember { mutableStateOf("") }
     var mainSpeed by remember { mutableStateOf("0.0") }
+    var testRes by remember { mutableStateOf("") }
     val recentTests = remember { mutableStateListOf<RecentTest>() }
 
     Box(modifier = Modifier.fillMaxSize().background(BgDark)) {
@@ -73,8 +74,19 @@ fun SpeedTestScreen(
                         .padding(24.dp)
                 ) {
                     Column {
-                        Text(text = "Ready for scan", color = TextDim, fontSize = 14.sp)
-                        Text(text = "Your Download Speed : ", color = TextDim, fontSize = 14.sp)
+                     Row {
+                         Column {
+                             Text(text = "Ready for scan", color = TextDim, fontSize = 14.sp)
+                             Text(text = "Your Download Speed : ", color = TextDim, fontSize = 14.sp)
+                         }
+                         Spacer(modifier = Modifier.width(16.dp))
+                         Card(
+                             colors = CardDefaults.cardColors(containerColor = BgDarkCard),
+                             shape = RoundedCornerShape(16.dp)
+                         ){
+                             Text(text = "Test Result: ${testRes}", color = TextDim, fontSize = 14.sp)
+                         }
+                     }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(
@@ -111,15 +123,17 @@ fun SpeedTestScreen(
                                         val ul = (speedPair?.optDouble("ulSpeedKbps") ?: 0.0) / 1000.0
                                         val rsrp = networkData?.optInt("RSRP") ?: 0
                                         val status = json.optString("status", "Failed")
-
+                                       val testResult = json.optString("testResult", "Unknown")
                                         mainSpeed = String.format("%.1f", dl)
+                                        testRes=testResult
 
                                         val newTest = RecentTest(
                                             timestamp = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date()),
                                             downloadSpeed = dl,
                                             uploadSpeed = ul,
                                             rsrp = rsrp,
-                                            status = status
+                                            status = status,
+                                            testResult = testResult
                                         )
                                         recentTests.add(0, newTest)
                                     } catch (e: Exception) {

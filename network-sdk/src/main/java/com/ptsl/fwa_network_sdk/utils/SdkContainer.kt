@@ -18,13 +18,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
 internal object SdkContainer {
+    // Encapsulation: Using `private set` prevents other classes from accidentally mutating the
+    // global state of the SDK after initialization. It can only be read externally.
     var database: NetworkDatabase? = null
+        private set
     var dao: NetworkDao? = null
+        private set
     var coroutineScope: CoroutineScope? = null
+        private set
     var apiService: ApiService? = null
+        private set
     var downloadUploadHelper: DownloadUploadHelper? = null
+        private set
     var networkStateProvider: NetworkStateProvider? = null
+        private set
     var thresholdManager: ThresholdManager? = null
+        private set
 
     @Volatile
     private var initialized = false

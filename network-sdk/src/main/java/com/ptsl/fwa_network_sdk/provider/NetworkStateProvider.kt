@@ -10,23 +10,42 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
+import com.ptsl.fwa_network_sdk.utils.CheckPermissionHandler
 import com.ptsl.fwa_network_sdk.utils.CommonUtils
+import com.ptsl.fwa_network_sdk.utils.Constants
 
-interface NetworkStateProvider {
+/**
+ * Splitting the large NetworkStateProvider into smaller, focused interfaces.
+ * This ensures that a class only needing Location info isn't forced to depend on Internet checks.
+ */
+interface NetworkConnectivityProvider {
     fun isInternetAvailable(): Boolean
     fun isMobileNetworkConnected(): Boolean
     fun isWifiConnected(): Boolean
     fun is4GConnected(): Boolean
+}
+
+interface SimOperatorProvider {
     fun isBanglalinkDataEnabled(): Boolean
     fun getActiveNetworkMNC(): String
+}
+
+interface LocationStateProvider {
     fun isGpsEnabled(): Boolean
     fun hasLocationPermissions(): Boolean
 }
 
+/**
+ * Composite interface combining the segregated interfaces. 
+ * This maintains backward compatibility so existing code using NetworkStateProvider doesn't break.
+ */
+interface NetworkStateProvider : NetworkConnectivityProvider, SimOperatorProvider, LocationStateProvider
+
 internal class NetworkStateProviderImpl(private val context: Context) : NetworkStateProvider {
     companion object {
-        private const val blSim = "3"
+        private const val blSim = Constants.BANGLALINK_MNC
     }
+
     override fun isInternetAvailable(): Boolean {
         return try {
             val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
@@ -69,7 +88,8 @@ internal class NetworkStateProviderImpl(private val context: Context) : NetworkS
 
     override fun is4GConnected(): Boolean {
         return try {
-            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+            val telephonyManager =
+                context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
             val networkType = if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.READ_PHONE_STATE
@@ -140,11 +160,6 @@ internal class NetworkStateProviderImpl(private val context: Context) : NetworkS
     }
 
     override fun hasLocationPermissions(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(
-                    context, Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
+        return CommonUtils.isLocationPermissionGranted(context)
     }
 }

@@ -73,6 +73,8 @@ data class AssessmentResult(
     val rsrq: Int,
     val snr: Int,
     val status: String,
+    val testResult: String,
+    val message: String,
     val rawJson: String
 )
 
@@ -161,6 +163,8 @@ fun AssessmentFragmentScreen(
                                         rsrq = networkData?.optInt("RSRQ", 0) ?: 0,
                                         snr = networkData?.optInt("SNR", 0) ?: 0,
                                         status = json.optString("status", "Unknown"),
+                                        testResult = json.optString("testResult", "Unknown"),
+                                        message = json.optString("message", ""),
                                         rawJson = jsonStr
                                     )
                                     resultsHistory.add(0, newResult)
@@ -305,6 +309,13 @@ fun DetailDialog(result: AssessmentResult, onDismiss: () -> Unit) {
                     Spacer(modifier = Modifier.width(12.dp))
                     DetailCard(label = "Status", value = result.status, modifier = Modifier.weight(1f))
                 }
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    DetailCard(label = "Test Result", value = result.testResult, modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.width(12.dp))
+                    DetailCard(label = "Message", value = result.message, modifier = Modifier.weight(1f))
+                }
+
 
                 Spacer(modifier = Modifier.height(24.dp))
 

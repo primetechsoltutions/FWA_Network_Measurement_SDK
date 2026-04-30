@@ -2,24 +2,17 @@ package com.ptsl.fwa_network_sdk.utils
 
 import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.util.Log
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
 
 /**
  * Handles permission requests and GPS enablement prompts for the Network SDK.
@@ -64,11 +57,11 @@ class CheckPermissionHandler private constructor(
     }
 
     fun isPermissionGranted(): Boolean {
-        return isAllPermissionsGrantedExcludingGps() && isGpsEnabled()
+        return isAllPermissionsGrantedExcludingGps() && CommonUtils.isGpsEnabled(safeContext)
     }
 
     fun isAllPermissionsGrantedExcludingGps(): Boolean {
-        return isPhoneStatePermissionGranted() && isLocationPermissionGranted()
+        return CommonUtils.isPhoneStatePermissionGranted(safeContext) && CommonUtils.isLocationPermissionGranted(safeContext)
     }
 
     fun requestPermission(callback: (Boolean) -> Unit) {
@@ -83,7 +76,7 @@ class CheckPermissionHandler private constructor(
 
 
         // GPS Prompt Logic
-        if (isAllPermissionsGrantedExcludingGps() && !isGpsEnabled()) {
+        if (isAllPermissionsGrantedExcludingGps() && !CommonUtils.isGpsEnabled(safeContext)) {
                 checkAndResolveLocationSettings(callback)
             return
         }
@@ -100,7 +93,7 @@ class CheckPermissionHandler private constructor(
 
         requestPermissions(permissions) { _ ->
             val allGranted = isAllPermissionsGrantedExcludingGps()
-            if (allGranted && !isGpsEnabled()) {
+            if (allGranted && !CommonUtils.isGpsEnabled(safeContext)) {
                 checkAndResolveLocationSettings(callback)
             } else if (!allGranted) {
                 finishRequest(callback)
@@ -165,7 +158,10 @@ class CheckPermissionHandler private constructor(
                             resolveGps(intentSenderRequest) {
                                 finishRequest(callback)
                             }
-                        } catch (_: Exception) {
+                        } catch (e: Exception) {
+                            // Clean Code: Do not swallow exceptions silently. Log them so production
+                            // bugs or crashes related to GPS intent resolution can be traced.
+                            Log.e("CheckPermissionHandler", "Failed to launch GPS resolution: ${e.message}")
                             finishRequest(callback)
                         }
                     } else {
@@ -185,32 +181,5 @@ class CheckPermissionHandler private constructor(
 
     private fun resetInFlightFlagOnly() {
         isRequestInProgress = false
-    }
-
-    fun isGpsEnabled(): Boolean {
-        val ctx = safeContext ?: return false
-        val locationManager = ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-            ?: return false
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    }
-
-    fun isLocationPermissionGranted(): Boolean {
-        val ctx = safeContext ?: return false
-        return ContextCompat.checkSelfPermission(
-            ctx,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(
-                    ctx,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun isPhoneStatePermissionGranted(): Boolean {
-        val ctx = safeContext ?: return false
-        return ContextCompat.checkSelfPermission(
-            ctx,
-            Manifest.permission.READ_PHONE_STATE
-        ) == PackageManager.PERMISSION_GRANTED
     }
 }
