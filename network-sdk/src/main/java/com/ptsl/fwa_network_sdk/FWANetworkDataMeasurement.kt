@@ -11,7 +11,9 @@ import com.ptsl.fwa_network_sdk.data_model.NetworkDataResponse
 import com.ptsl.fwa_network_sdk.data_model.entity.AuthEntity
 import com.ptsl.fwa_network_sdk.data_model.entity.FWAAssessmentExecutionInput
 import com.ptsl.fwa_network_sdk.network_data_worker.FWADataMeasurementExecutor
+import com.ptsl.fwa_network_sdk.network_data_worker.MeasurementLogger
 import com.ptsl.fwa_network_sdk.utils.CheckPermissionHandler
+import com.ptsl.fwa_network_sdk.utils.CommonUtils
 import com.ptsl.fwa_network_sdk.utils.Constants
 import com.ptsl.fwa_network_sdk.utils.LifecycleCallbackDispatcher
 import com.ptsl.fwa_network_sdk.utils.SdkContainer
@@ -53,7 +55,7 @@ class FWANetworkDataMeasurement {
         appName: String
     ) {
         this.callbackDispatcher = LifecycleCallbackDispatcher(
-            WeakReference(activity), 
+            WeakReference(activity),
             WeakReference(owner)
         )
         this.checkPermissionHandler = permissionHandler
@@ -117,7 +119,7 @@ class FWANetworkDataMeasurement {
     private fun handleUninitializedError(callback: (Boolean, FWAMeasurementStatus) -> Unit) {
         Log.e(TAG, "SDK not initialized. Call init() first.")
         val errorResponse = NetworkDataResponse(
-            status = com.ptsl.fwa_network_sdk.utils.Constants.STATUS_FAILED,
+            status = Constants.STATUS_FAILED,
             statusCode = 400,
             message = "SDK not initialized"
         )
@@ -128,7 +130,7 @@ class FWANetworkDataMeasurement {
     private fun handlePermissionDenied(callback: (Boolean, FWAMeasurementStatus) -> Unit) {
         Log.w(TAG, "Permissions not granted for measurement capture.")
 
-        val isGpsEnabled = com.ptsl.fwa_network_sdk.utils.CommonUtils.isGpsEnabled(context)
+        val isGpsEnabled = CommonUtils.isGpsEnabled(context)
         val isPermissionsGranted = checkPermissionHandler.isAllPermissionsGrantedExcludingGps()
 
         val errorMessage = when {
@@ -138,8 +140,8 @@ class FWANetworkDataMeasurement {
         }
 
         val error = NetworkDataResponse(
-            status = com.ptsl.fwa_network_sdk.utils.Constants.STATUS_FAILED,
-            testResult = com.ptsl.fwa_network_sdk.utils.Constants.RESULT_FAILED,
+            status = Constants.STATUS_FAILED,
+            testResult = Constants.RESULT_FAILED,
             statusCode = 400,
             message = errorMessage
         )
@@ -157,7 +159,8 @@ class FWANetworkDataMeasurement {
     ) {
         SdkContainer.coroutineScope?.launch {
             val auth = createAuthEntity()
-            SdkContainer.dao?.insertAuthData(auth)
+            // Persist auth via repository (single source of truth)
+            SdkContainer.networkRepository?.saveAuth(auth)
 
             val input = FWAAssessmentExecutionInput(
                 msisdn,
@@ -182,21 +185,21 @@ class FWANetworkDataMeasurement {
     }
 
     private suspend fun executeMeasurement(input: FWAAssessmentExecutionInput): NetworkDataResponse? {
-        val apiService = SdkContainer.apiService ?: return null
-        val downloader = SdkContainer.downloadUploadHelper ?: return null
-        val dao = SdkContainer.dao ?: return null
-        val networkProvider = SdkContainer.networkStateProvider ?: return null
-        val thresholdManager = SdkContainer.thresholdManager ?: return null
+        val networkRepository   = SdkContainer.networkRepository   ?: return null
+        val thresholdRepository = SdkContainer.thresholdRepository ?: return null
+        val logRepository       = SdkContainer.logRepository       ?: return null
+        val downloader          = SdkContainer.downloadUploadHelper ?: return null
+        val networkProvider     = SdkContainer.networkStateProvider ?: return null
 
-        // Dependency Inversion: Ideally, this executor would be injected via SdkContainer.
-        // For now, it's instantiated here but it uses the injected dependencies from the container.
+        val logger = MeasurementLogger(logRepository)
+
         return FWADataMeasurementExecutor(
-            context,
-            apiService,
-            downloader,
-            dao,
-            networkProvider,
-            thresholdManager
+            appContext          = context,
+            networkRepository   = networkRepository,
+            thresholdRepository = thresholdRepository,
+            networkStateProvider = networkProvider,
+            downloader          = downloader,
+            measurementLogger   = logger
         ).execute(input)
     }
 
