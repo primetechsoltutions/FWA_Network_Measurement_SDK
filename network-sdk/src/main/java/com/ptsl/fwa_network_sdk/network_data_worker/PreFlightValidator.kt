@@ -1,6 +1,7 @@
 package com.ptsl.fwa_network_sdk.network_data_worker
 
 import com.ptsl.fwa_network_sdk.provider.NetworkStateProvider
+import com.ptsl.fwa_network_sdk.provider.SimOperatorProvider
 import com.ptsl.fwa_network_sdk.utils.Constants
 
 /**
@@ -21,6 +22,12 @@ object PreFlightValidator {
             override fun evaluate(provider: NetworkStateProvider) =
                 if (!provider.hasLocationPermissions()) PreFlightResult(
                     Constants.ERR_MSG_PERMISSION_DENIED, Constants.ERR_CODE_PERMISSION_DENIED, 400
+                ) else null
+        },
+        object : EligibilityRule {
+            override fun evaluate(provider: NetworkStateProvider) =
+                if (!provider.isPhoneStatePermissionGranted()) PreFlightResult(
+                    Constants.ERR_MSG_PHONE_STATE_PERMISSION_DENIED, Constants.ERR_CODE_PERMISSION_DENIED, 400
                 ) else null
         },
         object : EligibilityRule {
@@ -58,7 +65,7 @@ object PreFlightValidator {
                 if (!provider.isBanglalinkDataEnabled()) PreFlightResult(
                     Constants.ERR_MSG_BANGLALINK_DATA_UNAVAILABLE, Constants.ERR_CODE_BANGLALINK_DATA_UNAVAILABLE, 400
                 ) else null
-        }
+        },
     )
 
     fun validate(provider: NetworkStateProvider): PreFlightResult? {

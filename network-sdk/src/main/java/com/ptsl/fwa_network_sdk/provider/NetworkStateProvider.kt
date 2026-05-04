@@ -28,6 +28,8 @@ interface NetworkConnectivityProvider {
 interface SimOperatorProvider {
     fun isBanglalinkDataEnabled(): Boolean
     fun getActiveNetworkMNC(): String
+    fun isPhoneStatePermissionGranted(): Boolean
+
 }
 
 interface LocationStateProvider {
@@ -156,5 +158,9 @@ internal class NetworkStateProviderImpl(private val context: Context) : NetworkS
 
     override fun hasLocationPermissions(): Boolean {
         return CommonUtils.isLocationPermissionGranted(context)
+    }
+
+    override fun isPhoneStatePermissionGranted(): Boolean {
+        return CommonUtils.isPhoneStatePermissionGranted(context)
     }
 }
