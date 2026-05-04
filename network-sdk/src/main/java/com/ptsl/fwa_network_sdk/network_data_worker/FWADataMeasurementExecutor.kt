@@ -1,13 +1,12 @@
 package com.ptsl.fwa_network_sdk.network_data_worker
 
-import android.Manifest
 import android.content.Context
 import android.util.Log
-import androidx.annotation.RequiresPermission
 import com.ptsl.fwa_network_sdk.data_model.*
 import com.ptsl.fwa_network_sdk.data_model.entity.FWAAssessmentExecutionInput
 import com.ptsl.fwa_network_sdk.data_model.entity.FTPNetworkDataEntity
 import com.ptsl.fwa_network_sdk.data_model.entity.FTPThresholdEntity
+import com.ptsl.fwa_network_sdk.dl_ul_test.DownloadUploadHelper
 import com.ptsl.fwa_network_sdk.provider.NetworkStateProvider
 import com.ptsl.fwa_network_sdk.repository.NetworkRepository
 import com.ptsl.fwa_network_sdk.repository.ThresholdRepository
@@ -22,7 +21,7 @@ internal class FWADataMeasurementExecutor(
     private val networkRepository: NetworkRepository,
     private val thresholdRepository: ThresholdRepository,
     private val networkStateProvider: NetworkStateProvider,
-    private val downloader: com.ptsl.fwa_network_sdk.dl_ul_test.DownloadUploadHelper,
+    downloader: DownloadUploadHelper,
     private val measurementLogger: MeasurementLogger
 ) {
     private val networkDataCapturer =
@@ -83,10 +82,10 @@ internal class FWADataMeasurementExecutor(
 
         } catch (e: Exception) {
             SdkExceptionHandler.handle(
-                e                  = e,
-                input              = input,
-                auth               = networkRepository.getAuth(),
-                measurementLogger  = measurementLogger
+                e = e,
+                input = input,
+                auth = networkRepository.getAuth(),
+                measurementLogger = measurementLogger
             )
         }
     }

@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.ptsl.fwa_network_sdk.utils.CommonUtils
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -19,13 +20,7 @@ object LocationHelper {
      * Attempts to fetch current location coordinate with a 5-second timeout.
      */
     suspend fun getCurrentLocation(context: Context): Pair<Double, Double> {
-        val hasPermission = ActivityCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(
-                    context, Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-
+        val hasPermission = CommonUtils.isLocationPermissionGranted(context)
         if (!hasPermission) return Pair(0.0, 0.0)
 
         val client = LocationServices.getFusedLocationProviderClient(context)
@@ -35,14 +30,12 @@ object LocationHelper {
             val location = withTimeoutOrNull(10000) {
                 suspendCancellableCoroutine { cont ->
                     val cts = CancellationTokenSource()
-                    client.getCurrentLocation(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        cts.token
-                    ).addOnSuccessListener { loc ->
-                        cont.resume(loc) {}
-                    }.addOnFailureListener {
-                        cont.resume(null) {}
-                    }
+                    client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token)
+                        .addOnSuccessListener { loc ->
+                            cont.resume(loc) {}
+                        }.addOnFailureListener {
+                            cont.resume(null) {}
+                        }
                     cont.invokeOnCancellation {
                         cts.cancel()
                     }
@@ -66,7 +59,7 @@ object LocationHelper {
                 }
             }
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return Pair(0.0, 0.0)
         }
     }

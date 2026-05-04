@@ -3,7 +3,6 @@ package com.ptsl.fwa_network_sdk.data_model.entity
 import android.os.Parcelable
 import androidx.annotation.Keep
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import com.ptsl.fwa_network_sdk.BuildConfig

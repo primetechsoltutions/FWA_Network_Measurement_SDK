@@ -8,7 +8,7 @@ import com.ptsl.fwa_network_sdk.data_model.logger.EventLogModel
 
 @Database(
     entities = [AuthEntity::class, EventLogModel::class, FTPThresholdEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class NetworkDatabase : RoomDatabase() {

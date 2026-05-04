@@ -8,9 +8,9 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
-import com.ptsl.fwa_network_sdk.utils.CheckPermissionHandler
 import com.ptsl.fwa_network_sdk.utils.CommonUtils
 import com.ptsl.fwa_network_sdk.utils.Constants
 
@@ -43,23 +43,17 @@ interface NetworkStateProvider : NetworkConnectivityProvider, SimOperatorProvide
 
 internal class NetworkStateProviderImpl(private val context: Context) : NetworkStateProvider {
     companion object {
-        private const val blSim = Constants.BANGLALINK_MNC
+        private const val BL_SIM = Constants.BANGLALINK_MNC
     }
 
     override fun isInternetAvailable(): Boolean {
         return try {
             val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val network = cm?.activeNetwork ?: return false
-                val caps = cm.getNetworkCapabilities(network) ?: return false
-                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                        caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            } else {
-                @Suppress("DEPRECATION")
-                val activeNetworkInfo = cm?.activeNetworkInfo ?: return false
-                activeNetworkInfo.isConnected
-            }
-        } catch (e: Exception) {
+            val network = cm?.activeNetwork ?: return false
+            val caps = cm.getNetworkCapabilities(network) ?: return false
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        } catch (_: Exception) {
             false
         }
     }
@@ -70,7 +64,7 @@ internal class NetworkStateProviderImpl(private val context: Context) : NetworkS
             val network = cm?.activeNetwork ?: return false
             val caps = cm.getNetworkCapabilities(network) ?: return false
             caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -81,11 +75,12 @@ internal class NetworkStateProviderImpl(private val context: Context) : NetworkS
             val network = cm?.activeNetwork ?: return false
             val caps = cm.getNetworkCapabilities(network) ?: return false
             caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun is4GConnected(): Boolean {
         return try {
             val telephonyManager =
@@ -119,7 +114,7 @@ internal class NetworkStateProviderImpl(private val context: Context) : NetworkS
             val subscriptions = sm.activeSubscriptionInfoList
             if (subscriptions.isNullOrEmpty()) return false
 
-            val hasBLSim = subscriptions.any { it.mnc.toString().removePrefix("0") == blSim }
+            val hasBLSim = subscriptions.any { it.mnc.toString().removePrefix("0") == BL_SIM }
             if (!hasBLSim) return false
 
             val defaultDataId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -130,11 +125,11 @@ internal class NetworkStateProviderImpl(private val context: Context) : NetworkS
 
             if (defaultDataId != -1) {
                 val info = sm.getActiveSubscriptionInfo(defaultDataId)
-                info?.mnc?.toString()?.removePrefix("0") == blSim
+                info?.mnc?.toString()?.removePrefix("0") == BL_SIM
             } else {
-                subscriptions.firstOrNull()?.mnc?.toString()?.removePrefix("0") == blSim
+                subscriptions.firstOrNull()?.mnc?.toString()?.removePrefix("0") == BL_SIM
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

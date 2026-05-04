@@ -1,6 +1,7 @@
 package com.ptsl.fwa_network_sdk.utils
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.activity.result.ActivityResultCaller
@@ -19,8 +20,7 @@ import com.google.android.gms.location.Priority
  * Implements case-by-case logic for Standard (once-per-day) vs FTP (every-time) GPS prompts.
  */
 class CheckPermissionHandler private constructor(
-    private val activity: AppCompatActivity?,
-    private val fragment: Fragment?
+    private val activity: AppCompatActivity?, private val fragment: Fragment?
 ) {
 
     constructor(activity: AppCompatActivity) : this(activity, null)
@@ -33,7 +33,7 @@ class CheckPermissionHandler private constructor(
 
     private var isRequestInProgress = false
     private var permissionCallback: ((Map<String, Boolean>) -> Unit)? = null
-    private var gpsCallback: (() -> Unit)? = null
+    private var gpsCallback: ((Boolean) -> Unit)? = null
 
     private val permissionLauncher = caller?.registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -43,8 +43,8 @@ class CheckPermissionHandler private constructor(
 
     private val gpsResolutionLauncher = caller?.registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
-    ) {
-        gpsCallback?.invoke()
+    ) { result ->
+        gpsCallback?.invoke(result.resultCode == Activity.RESULT_OK)
     }
 
     private fun canLaunchUi(): Boolean {
@@ -61,7 +61,9 @@ class CheckPermissionHandler private constructor(
     }
 
     fun isAllPermissionsGrantedExcludingGps(): Boolean {
-        return CommonUtils.isPhoneStatePermissionGranted(safeContext) && CommonUtils.isLocationPermissionGranted(safeContext)
+        return CommonUtils.isPhoneStatePermissionGranted(safeContext) && CommonUtils.isLocationPermissionGranted(
+            safeContext
+        )
     }
 
     fun requestPermission(callback: (Boolean) -> Unit) {
@@ -77,7 +79,7 @@ class CheckPermissionHandler private constructor(
 
         // GPS Prompt Logic
         if (isAllPermissionsGrantedExcludingGps() && !CommonUtils.isGpsEnabled(safeContext)) {
-                checkAndResolveLocationSettings(callback)
+            checkAndResolveLocationSettings(callback)
             return
         }
 
@@ -104,8 +106,7 @@ class CheckPermissionHandler private constructor(
     }
 
     private fun requestPermissions(
-        permissions: Array<String>,
-        callback: (Map<String, Boolean>) -> Unit
+        permissions: Array<String>, callback: (Map<String, Boolean>) -> Unit
     ) {
         if (!canLaunchUi()) {
             // Can't show dialogs; reset state and return current result.
@@ -117,10 +118,10 @@ class CheckPermissionHandler private constructor(
         permissionLauncher?.launch(permissions)
     }
 
-    private fun resolveGps(intentSenderRequest: IntentSenderRequest, callback: () -> Unit) {
+    private fun resolveGps(intentSenderRequest: IntentSenderRequest, callback: (Boolean) -> Unit) {
         if (!canLaunchUi()) {
             resetInFlightFlagOnly()
-            callback()
+            callback(false)
             return
         }
         gpsCallback = callback
@@ -129,11 +130,9 @@ class CheckPermissionHandler private constructor(
 
     private fun checkAndResolveLocationSettings(callback: (Boolean) -> Unit) {
         val locationRequest = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            System.currentTimeMillis() % 10000
+            Priority.PRIORITY_HIGH_ACCURACY, System.currentTimeMillis() % 10000
         ).build()
-        val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest)
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
             .setAlwaysShow(true)
 
         val ctx = safeContext ?: run {
@@ -141,8 +140,7 @@ class CheckPermissionHandler private constructor(
             return
         }
 
-        LocationServices.getSettingsClient(ctx)
-            .checkLocationSettings(builder.build())
+        LocationServices.getSettingsClient(ctx).checkLocationSettings(builder.build())
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     val exception = task.exception
@@ -155,13 +153,31 @@ class CheckPermissionHandler private constructor(
                             val intentSenderRequest =
                                 IntentSenderRequest.Builder(exception.resolution.intentSender)
                                     .build()
-                            resolveGps(intentSenderRequest) {
-                                finishRequest(callback)
+                            resolveGps(intentSenderRequest) { isSuccess ->
+                                if (isSuccess) {
+                                    android.os.Handler(android.os.Looper.getMainLooper())
+                                        .postDelayed({
+                                            Log.d(
+                                                "CheckPermissionHandler",
+                                                "GPS resolution successful, finishing request."
+                                            )
+                                            finishRequest(callback)
+                                        }, 1000)
+                                } else {
+                                    Log.d(
+                                        "CheckPermissionHandler",
+                                        "GPS resolution cancelled or failed."
+                                    )
+                                    finishRequest(callback)
+                                }
                             }
                         } catch (e: Exception) {
                             // Clean Code: Do not swallow exceptions silently. Log them so production
                             // bugs or crashes related to GPS intent resolution can be traced.
-                            Log.e("CheckPermissionHandler", "Failed to launch GPS resolution: ${e.message}")
+                            Log.e(
+                                "CheckPermissionHandler",
+                                "Failed to launch GPS resolution: ${e.message}"
+                            )
                             finishRequest(callback)
                         }
                     } else {

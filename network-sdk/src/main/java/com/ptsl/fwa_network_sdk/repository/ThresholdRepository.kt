@@ -64,7 +64,7 @@ internal class ThresholdRepositoryImpl(
             val isStale = cached == null || cached.lastUpdated != today
 
             if (!isStale) {
-                Log.d(TAG, "Thresholds are up-to-date (last updated: ${cached?.lastUpdated})")
+                Log.d(TAG, "Thresholds are up-to-date (last updated: ${cached.lastUpdated})")
                 return
             }
 

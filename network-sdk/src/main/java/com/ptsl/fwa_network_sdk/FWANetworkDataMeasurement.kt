@@ -22,7 +22,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.lang.ref.WeakReference
 
 /**
- * Main entry point for the Network Measurement SDK. 
+ * Main entry point for the Network Measurement SDK.
  * Acts as a clean Facade pattern, delegating permission handling, lifecycle validation,
  * and data collection execution to respective dedicated classes.
  */
@@ -55,13 +55,12 @@ class FWANetworkDataMeasurement {
         appName: String
     ) {
         this.callbackDispatcher = LifecycleCallbackDispatcher(
-            WeakReference(activity),
-            WeakReference(owner)
+            WeakReference(activity), WeakReference(owner)
         )
         this.checkPermissionHandler = permissionHandler
         this.context = activity.applicationContext
         this.applicationName = appName
-        
+
         SdkContainer.init(this.context)
         Log.i(TAG, "SDK Initialized for $appName via ${owner::class.java.simpleName}")
     }
@@ -111,17 +110,13 @@ class FWANetworkDataMeasurement {
     }
 
     private fun isInitialized(): Boolean {
-        return this::checkPermissionHandler.isInitialized && 
-               this::callbackDispatcher.isInitialized && 
-               SdkContainer.isInitialized()
+        return this::checkPermissionHandler.isInitialized && this::callbackDispatcher.isInitialized && SdkContainer.isInitialized()
     }
 
     private fun handleUninitializedError(callback: (Boolean, FWAMeasurementStatus) -> Unit) {
         Log.e(TAG, "SDK not initialized. Call init() first.")
         val errorResponse = NetworkDataResponse(
-            status = Constants.STATUS_FAILED,
-            statusCode = 400,
-            message = "SDK not initialized"
+            status = Constants.STATUS_FAILED, statusCode = 400, message = "SDK not initialized"
         )
         // Since callback dispatcher might not be initialized, dispatch directly
         callback(false, createMeasurementStatus(errorResponse, isSdkInit = false))
@@ -176,7 +171,7 @@ class FWANetworkDataMeasurement {
             }
 
             if (response != null) {
-                val isSuccess = response.status.equals(com.ptsl.fwa_network_sdk.utils.Constants.STATUS_SUCCESS, ignoreCase = true)
+                val isSuccess = response.status.equals(Constants.STATUS_SUCCESS, ignoreCase = true)
                 callbackDispatcher.dispatch(callback, isSuccess, createMeasurementStatus(response))
             } else {
                 dispatchErrorCallback(callback, "Assessment Failed")
@@ -185,27 +180,26 @@ class FWANetworkDataMeasurement {
     }
 
     private suspend fun executeMeasurement(input: FWAAssessmentExecutionInput): NetworkDataResponse? {
-        val networkRepository   = SdkContainer.networkRepository   ?: return null
+        val networkRepository = SdkContainer.networkRepository ?: return null
         val thresholdRepository = SdkContainer.thresholdRepository ?: return null
-        val logRepository       = SdkContainer.logRepository       ?: return null
-        val downloader          = SdkContainer.downloadUploadHelper ?: return null
-        val networkProvider     = SdkContainer.networkStateProvider ?: return null
+        val logRepository = SdkContainer.logRepository ?: return null
+        val downloader = SdkContainer.downloadUploadHelper ?: return null
+        val networkProvider = SdkContainer.networkStateProvider ?: return null
 
         val logger = MeasurementLogger(logRepository)
 
         return FWADataMeasurementExecutor(
-            appContext          = context,
-            networkRepository   = networkRepository,
+            appContext = context,
+            networkRepository = networkRepository,
             thresholdRepository = thresholdRepository,
             networkStateProvider = networkProvider,
-            downloader          = downloader,
-            measurementLogger   = logger
+            downloader = downloader,
+            measurementLogger = logger
         ).execute(input)
     }
 
     private fun dispatchErrorCallback(
-        callback: (Boolean, FWAMeasurementStatus) -> Unit,
-        message: String
+        callback: (Boolean, FWAMeasurementStatus) -> Unit, message: String
     ) {
         val errorResponse = NetworkDataResponse(
             status = com.ptsl.fwa_network_sdk.utils.Constants.STATUS_FAILED,
@@ -218,8 +212,10 @@ class FWANetworkDataMeasurement {
     private fun createAuthEntity() = AuthEntity(
         sdkVersion = BuildConfig.SdkVersion,
         isSdkInitialized = this::checkPermissionHandler.isInitialized,
-        isLocationEnabled = com.ptsl.fwa_network_sdk.utils.CommonUtils.isLocationPermissionGranted(context) && com.ptsl.fwa_network_sdk.utils.CommonUtils.isGpsEnabled(context),
-        isPhoneStateEnabled = com.ptsl.fwa_network_sdk.utils.CommonUtils.isPhoneStatePermissionGranted(context),
+        isLocationEnabled = CommonUtils.isLocationPermissionGranted(context) && CommonUtils.isGpsEnabled(
+            context
+        ),
+        isPhoneStateEnabled = CommonUtils.isPhoneStatePermissionGranted(context),
         hostAppName = applicationName
     )
 
@@ -228,10 +224,11 @@ class FWANetworkDataMeasurement {
         isSdkInit: Boolean = this::checkPermissionHandler.isInitialized
     ): FWAMeasurementStatus {
         return FWAMeasurementStatus(
-            isSdkInit = isSdkInit,
-            isLocationEnabled = com.ptsl.fwa_network_sdk.utils.CommonUtils.isLocationPermissionGranted(context),
-            isPhoneStateGranted = com.ptsl.fwa_network_sdk.utils.CommonUtils.isPhoneStatePermissionGranted(context),
-            response = gson.toJson(networkDataResponse)
+            isSdkInit = isSdkInit, isLocationEnabled = CommonUtils.isLocationPermissionGranted(
+                context
+            ), isPhoneStateGranted = CommonUtils.isPhoneStatePermissionGranted(
+                context
+            ), response = gson.toJson(networkDataResponse)
         )
     }
 
