@@ -126,10 +126,12 @@ class FWANetworkDataMeasurement {
         Log.w(TAG, "Permissions not granted for measurement capture.")
 
         val isGpsEnabled = CommonUtils.isGpsEnabled(context)
-        val isPermissionsGranted = checkPermissionHandler.isAllPermissionsGrantedExcludingGps()
+        val isPermissionsGranted = CommonUtils.isLocationPermissionGranted(context)
+        val isPhoneStateGranted = CommonUtils.isPhoneStatePermissionGranted(context)
 
         val errorMessage = when {
             !isPermissionsGranted -> Constants.ERR_MSG_PERMISSION_DENIED
+            !isPhoneStateGranted -> Constants.ERR_MSG_PHONE_STATE_PERMISSION_DENIED
             !isGpsEnabled -> Constants.ERR_MSG_GPS_DISABLED
             else -> "Required permissions are missing."
         }
@@ -174,7 +176,7 @@ class FWANetworkDataMeasurement {
                 val isSuccess = response.status.equals(Constants.STATUS_SUCCESS, ignoreCase = true)
                 callbackDispatcher.dispatch(callback, isSuccess, createMeasurementStatus(response))
             } else {
-                dispatchErrorCallback(callback, "Assessment Failed")
+                dispatchErrorCallback(callback, "Assessment failed, please try again")
             }
         }
     }

@@ -84,6 +84,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(project(mapOf("path" to ":network-sdk")))
+//    implementation("com.github.primetechsoltutions:FWA_Network_Measurement_SDK:Test-1.0.0-Internal")
 
     implementation(libs.play.services.location)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")

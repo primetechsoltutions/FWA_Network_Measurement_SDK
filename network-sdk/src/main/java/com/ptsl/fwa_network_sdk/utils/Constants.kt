@@ -53,7 +53,9 @@ object Constants {
 
     // Pre-Flight Validation Messages
     const val ERR_MSG_PERMISSION_DENIED =
-        "To continue network assessment, please allow all required permissions."
+        "To continue the network assessment, please allow the location permissions (Precise Location)."
+    const val ERR_MSG_PHONE_STATE_PERMISSION_DENIED =
+        "To continue network assessment, please allow the phone state permissions."
     const val ERR_MSG_GPS_DISABLED =
         "To continue network assessment, please enable GPS/location services."
     const val ERR_MSG_INTERNET_UNAVAILABLE =
