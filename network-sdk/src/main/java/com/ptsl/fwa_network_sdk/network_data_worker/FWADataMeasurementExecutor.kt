@@ -1,8 +1,6 @@
 package com.ptsl.fwa_network_sdk.network_data_worker
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.util.Log
 import com.ptsl.fwa_network_sdk.data_model.*
 import com.ptsl.fwa_network_sdk.data_model.entity.FWAAssessmentExecutionInput
@@ -17,8 +15,6 @@ import com.ptsl.fwa_network_sdk.utils.Constants
 import com.ptsl.fwa_network_sdk.utils.SdkExceptionHandler
 import kotlin.math.abs
 
-
-import java.util.concurrent.atomic.AtomicBoolean
 
 internal class FWADataMeasurementExecutor(
     private val appContext: Context,
@@ -36,12 +32,6 @@ internal class FWADataMeasurementExecutor(
     }
 
     suspend fun execute(input: FWAAssessmentExecutionInput): NetworkDataResponse {
-        val networkCompromised = AtomicBoolean(false)
-        val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-        val wifiCallback = createWifiMonitorCallback(networkCompromised)
-
-        registerWifiMonitor(cm, wifiCallback)
-
         return try {
             // 1. Pre-flight check
             val preFlightResult = PreFlightValidator.validate(networkStateProvider)
@@ -57,38 +47,17 @@ internal class FWADataMeasurementExecutor(
             val locationPair = LocationHelper.getCurrentLocation(appContext)
             val ftpData = networkDataCapturer.capture(locationPair)
 
-            // 4. Mid-flight validation: Check if capture was successful and on correct network
-            if (ftpData.technologyType == Constants.TECH_SKIP_MNC_MISMATCH) {
-                return dispatchErrorResponse(input, Constants.ERR_MSG_BANGLALINK_DATA_UNAVAILABLE, Constants.ERR_CODE_BANGLALINK_DATA_UNAVAILABLE)
-            }
-            if (ftpData.technologyType == Constants.TECH_NON_4G_IGNORED) {
-                return dispatchErrorResponse(input, Constants.ERR_MSG_4G_REQUIRED, Constants.ERR_CODE_4G_REQUIRED)
-            }
-
-            // 5. Post-Capture Integrity Check: Re-verify state hasn't changed during the long-running speed test
-            val postCaptureValidation = PreFlightValidator.validate(networkStateProvider)
-            if (postCaptureValidation != null || networkCompromised.get()) {
-                val message = postCaptureValidation?.message ?: Constants.ERR_MSG_WIFI_CONNECTED
-                val code = postCaptureValidation?.errorCode ?: Constants.ERR_CODE_NETWORK_CHANGED
-                return dispatchErrorResponse(input, message, code)
-            }
-
-            // 6. Enrich
+            // 4. Enrich
             enrichDataWithInput(ftpData, input)
             enrichDataWithCellInfo(ftpData, auth)
 
-            // 7. Post to backend via repository
+            // 5. Post to backend via repository
             val backendResponse = networkRepository.postAssessmentData(auth, ftpData)
-
-            if (networkCompromised.get()) {
-                return dispatchErrorResponse(input, Constants.ERR_MSG_WIFI_CONNECTED, Constants.ERR_CODE_NETWORK_CHANGED)
-            }
-
-            // 8. Threshold evaluation
+            // 6. Threshold evaluation
             val thresholds = thresholdRepository.getThresholds()
             val isPass = checkThresholds(ftpData, thresholds)
 
-            // 9. Build result
+            // 7. Build result
             val dataResult = AssessmentResultMapper.map(
                 backendResponse.data?.assessmentId ?: 0, ftpData
             )
@@ -109,38 +78,9 @@ internal class FWADataMeasurementExecutor(
                 auth = networkRepository.getAuth(),
                 measurementLogger = measurementLogger
             )
-        } finally {
-            unregisterWifiMonitor(cm, wifiCallback)
         }
     }
 
-    // ─── Private helpers for network change observation ─────────────────────────────────────────────────────
-
-    private fun createWifiMonitorCallback(flag: AtomicBoolean) =
-        object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: android.net.Network) {
-                flag.set(true)
-                Log.w(TAG, "Wi-Fi detected during assessment!")
-            }
-        }
-
-    private fun registerWifiMonitor(cm: ConnectivityManager?, callback: ConnectivityManager.NetworkCallback) {
-        try {
-            val request = android.net.NetworkRequest.Builder()
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build()
-            cm?.registerNetworkCallback(request, callback)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to register Wi-Fi monitor: ${e.message}")
-        }
-    }
-
-    private fun unregisterWifiMonitor(cm: ConnectivityManager?, callback: ConnectivityManager.NetworkCallback) {
-        try {
-            cm?.unregisterNetworkCallback(callback)
-        } catch (_: Exception) {
-            // Safe to ignore on cleanup
-        }
-    }
 
     private fun checkThresholds(
         ftpData: FTPNetworkDataEntity, thresholds: FTPThresholdEntity

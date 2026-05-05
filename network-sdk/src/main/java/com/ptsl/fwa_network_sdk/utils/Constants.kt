@@ -29,7 +29,7 @@ object Constants {
     //
 
     const val Assessment_Timeout_Message =
-        "Network assessment couldn’t be completed due to a processing timeout (60 seconds). Please try again."
+        "Network assessment couldn’t be completed due to a processing timeout. Please try again."
     const val Assessment_Failed_Message =
         "Network assessment failed due to a technical or processing error. Please enable all required permissions and try again."
     const val Assessment_Error_Message =
@@ -60,7 +60,7 @@ object Constants {
     const val ERR_MSG_GPS_DISABLED =
         "To continue network assessment, please enable GPS/location services."
     const val ERR_MSG_INTERNET_UNAVAILABLE =
-        "To continue network assessment, please enable mobile data."
+        "To continue network assessment, please enable and use Banglalink 4G internet."
     const val ERR_MSG_WIFI_CONNECTED =
         "To continue network assessment, please turn off Wi-Fi and use Banglalink 4G internet."
     const val ERR_MSG_MOBILE_DATA_REQUIRED =
@@ -68,5 +68,5 @@ object Constants {
     const val ERR_MSG_4G_REQUIRED =
         "To continue network assessment, please switch to the Banglalink 4G network."
     const val ERR_MSG_BANGLALINK_DATA_UNAVAILABLE =
-        "To continue network assessment, please insert a Banglalink 4G SIM."
+        "To continue network assessment, please enable and use Banglalink 4G internet."
 }
