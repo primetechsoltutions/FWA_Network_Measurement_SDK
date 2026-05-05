@@ -176,7 +176,7 @@ class FWANetworkDataMeasurement {
                 val isSuccess = response.status.equals(Constants.STATUS_SUCCESS, ignoreCase = true)
                 callbackDispatcher.dispatch(callback, isSuccess, createMeasurementStatus(response))
             } else {
-                dispatchErrorCallback(callback, "Assessment failed, please try again")
+                dispatchErrorCallback(callback, Constants.Assessment_Timeout_Message)
             }
         }
     }

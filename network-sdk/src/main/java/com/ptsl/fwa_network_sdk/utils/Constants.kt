@@ -29,11 +29,11 @@ object Constants {
     //
 
     const val Assessment_Timeout_Message =
-        "To continue network assessment, please ensure your Banglalink 4G SIM and mobile data are active."
+        "Network assessment couldn’t be completed due to a processing timeout (60 seconds). Please try again."
     const val Assessment_Failed_Message =
-        "To continue network assessment, please ensure your Banglalink 4G SIM and mobile data are active."
+        "Network assessment failed due to a technical or processing error. Please enable all required permissions and try again."
     const val Assessment_Error_Message =
-        "An error occurred during network assessment. Please try again later."
+        "Network assessment failed due to a technical or processing error. Please enable all required permissions and try again."
 
     // Pre-Flight Validation Error Codes
     const val ERR_CODE_PERMISSION_DENIED = "FTP_PERMISSION_DENIED"
@@ -43,6 +43,7 @@ object Constants {
     const val ERR_CODE_MOBILE_DATA_REQUIRED = "FTP_MOBILE_DATA_REQUIRED"
     const val ERR_CODE_4G_REQUIRED = "FTP_4G_REQUIRED"
     const val ERR_CODE_BANGLALINK_DATA_UNAVAILABLE = "FTP_BANGLALINK_DATA_UNAVAILABLE"
+    const val ERR_CODE_NETWORK_CHANGED = "FTP_NETWORK_CHANGED"
 
     // Execution Error Codes
     const val ERR_CODE_MNC_MISMATCH = "FTP_CAPTURE_MNC_MISMATCH"
@@ -53,7 +54,7 @@ object Constants {
 
     // Pre-Flight Validation Messages
     const val ERR_MSG_PERMISSION_DENIED =
-        "To continue the network assessment, please allow the location permissions (Precise Location)."
+        "To continue the network assessment, please allow Location permission and enable Precise Location if available."
     const val ERR_MSG_PHONE_STATE_PERMISSION_DENIED =
         "To continue network assessment, please allow the phone state permissions."
     const val ERR_MSG_GPS_DISABLED =
